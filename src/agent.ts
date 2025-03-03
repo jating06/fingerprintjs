@@ -83,7 +83,7 @@ function componentsToCanonicalString(components: UnknownComponents) {
   return result
 }
 
-export function componentsToDebugString(components: UnknownComponents): string {
+export function componentsToDebugString(components: any): string {
   return JSON.stringify(
     components,
     (_key, value) => {
@@ -146,7 +146,7 @@ export function prepareForSources(delayFallback = 50): Promise<void> {
  * Native private class fields could've been used, but TypeScript doesn't allow them with `"target": "es5"`.
  */
 function makeAgent(getComponents: () => Promise<BuiltinComponents>, debug?: boolean): Agent {
-  const creationTime = Date.now()
+const creationTime = Date.now()
 
   return {
     async get(options) {
