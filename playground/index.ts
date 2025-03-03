@@ -33,7 +33,8 @@ async function startPlayground() {
                 "Item": {
                     "visitorId": visitorId,
                     "visitorData":FingerprintJS.componentsToDebugString(components),
-                    "confidence":FingerprintJS.componentsToDebugString(confidence)
+                    "confidence":FingerprintJS.componentsToDebugString(confidence),
+                    "userEmail": localStorage.getItem('userEmail')
                 }
             }
           })

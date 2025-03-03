@@ -126,6 +126,63 @@
       text-decoration: underline;
     }
 
+    /* Overlay Styles */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .overlay-content {
+      background-color: #fff;
+      padding: 2em;
+      border-radius: 0.7em;
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+    }
+    
+    .overlay-content h2 {
+      margin-top: 0;
+      color: #333;
+      margin-bottom: 1em;
+    }
+    
+    .overlay-content input {
+      width: 100%;
+      padding: 0.8em;
+      margin-bottom: 1.5em;
+      border: 1px solid #ccc;
+      border-radius: 0.4em;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+    
+    .overlay-content button {
+      /* Inherit styles from existing buttons */
+      margin: 0 auto;
+      display: block;
+    }
+    
+    .error-message {
+      color: #f04405;
+      margin-bottom: 1em;
+      font-size: 0.9em;
+      display: none;
+    }
+    
+    /* Hide main content until email is provided */
+    .content-hidden {
+      display: none;
+    }
+
     @media (max-width: 768px), (max-height: 568px) {
       .content {
         padding: 1em;
@@ -136,11 +193,15 @@
       .output {
         padding: 0.75em 1em;
       }
+      .overlay-content {
+        padding: 1.5em;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="content">
+  <!-- Main content initially hidden -->
+  <div class="content content-hidden">
     <header>
       <a href="<%= require('../package.json').homepage %>">
       </a>
@@ -155,5 +216,103 @@
       </section>
     </div>
   </div>
+  
+  <!-- Email Overlay -->
+  <div class="overlay" id="emailOverlay">
+    <div class="overlay-content">
+      <h2>Welcome</h2>
+      <p>Please enter your email to continue:</p>
+      <input type="email" id="userEmail" placeholder="Your email address" required>
+      <div id="errorMessage" class="error-message">Please enter a valid email address</div>
+      <button id="submitEmail">Continue</button>
+    </div>
+  </div>
+
+  <script>
+    // JavaScript to handle the overlay and prevent proceeding without a valid email
+    document.addEventListener('DOMContentLoaded', function() {
+      const overlay = document.getElementById('emailOverlay');
+      const submitButton = document.getElementById('submitEmail');
+      const emailInput = document.getElementById('userEmail');
+      const errorMessage = document.getElementById('errorMessage');
+      const mainContent = document.querySelector('.content');
+      
+      // Function to validate email format
+      function isValidEmail(email) {
+        // Regular expression for basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+      }
+      
+      // Function to validate and process the email
+      function processEmail() {
+        const email = emailInput.value.trim();
+        
+        if (email && isValidEmail(email)) {
+          // Store the email in localStorage for persistence
+          localStorage.setItem('userEmail', email);
+          
+          // Show the main content
+          mainContent.classList.remove('content-hidden');
+          
+          // Hide the overlay
+          overlay.style.display = 'none';
+          
+          // Update the heading to show the email
+          document.querySelector('.output .heading').textContent = 
+            `Welcome! Getting the visitor identifier for ${email}...`;
+            
+          return true;
+        } else {
+          // Show appropriate error message
+          if (!email) {
+            errorMessage.textContent = "Please enter your email address";
+          } else {
+            errorMessage.textContent = "Please enter a valid email address";
+          }
+          
+          errorMessage.style.display = 'block';
+          emailInput.focus();
+          return false;
+        }
+      }
+      
+      // Submit button click handler
+      submitButton.addEventListener('click', processEmail);
+      
+      // Allow pressing Enter to submit
+      emailInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          processEmail();
+        }
+      });
+      
+      // Hide error message when user starts typing
+      emailInput.addEventListener('input', function() {
+        errorMessage.style.display = 'none';
+      });
+      
+      // Prevent overlay from being closed without a valid email
+      overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+          e.stopPropagation();
+          emailInput.focus();
+        }
+      });
+      
+      // Focus on input field when page loads
+      emailInput.focus();
+      
+      // Check if we already have a saved email
+      const savedEmail = localStorage.getItem('userEmail');
+      if (savedEmail) {
+        // If email exists, pre-fill the input
+        emailInput.value = savedEmail;
+        
+        // Let the user confirm their email - uncomment to auto-proceed with saved email
+        // processEmail();
+      }
+    });
+  </script>
 </body>
 </html>
