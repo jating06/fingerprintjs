@@ -14,7 +14,7 @@ export interface Confidence {
   comment?: string
 }
 
-export const commentTemplate = '$ if upgrade to Pro: https://fpjs.dev/pro'
+export const commentTemplate = ''
 
 export default function getConfidence(components: Pick<BuiltinComponents, 'platform'>): Confidence {
   const openConfidenceScore = getOpenConfidenceScore(components)
