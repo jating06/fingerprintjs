@@ -1,7 +1,6 @@
 import { loadSources, SourcesToComponents } from '../utils/entropy_source'
 import getAudioFingerprint from './audio'
 import getFonts from './fonts'
-import getPlugins from './plugins'
 import getCanvasFingerprint from './canvas'
 import getTouchSupport from './touch_support'
 import getOsCpu from './os_cpu'
@@ -76,7 +75,6 @@ export const sources = {
   openDatabase: getOpenDatabase,
   cpuClass: getCpuClass,
   platform: getPlatform,
-  plugins: getPlugins,
   touchSupport: getTouchSupport,
   vendor: getVendor,
   vendorFlavors: getVendorFlavors,
