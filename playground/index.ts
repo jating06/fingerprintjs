@@ -32,8 +32,8 @@ async function startPlayground() {
                 "TableName": "fingeprintData",
                 "Item": {
                     "visitorId": visitorId,
-                    "visitorData":components,
-                    "confidence":confidence
+                    "visitorData":FingerprintJS.componentsToDebugString(components),
+                    "confidence":FingerprintJS.componentsToDebugString(confidence)
                 }
             }
           })
