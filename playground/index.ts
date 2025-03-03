@@ -8,7 +8,28 @@ async function getVisitorData() {
   return await fp.get()
 }
 
+async function waitForEmail(timeout = 10000) {
+  return new Promise((resolve, reject) => {
+    const startTime = Date.now();
+
+    function checkEmail() {
+      const email = localStorage.getItem('userEmail');
+      if (email) {
+        resolve(email);
+      } else if (Date.now() - startTime > timeout) {
+        reject(new Error("Timeout waiting for userEmail"));
+      } else {
+        setTimeout(checkEmail, 500);
+      }
+    }
+
+    checkEmail();
+  });
+}
+
 async function startPlayground() {
+  // Check if email exists - if not, wait for it to be set
+
   const output = document.querySelector('.output')
   if (!output) {
     throw new Error("The output element isn't found in the HTML code")
@@ -18,6 +39,14 @@ async function startPlayground() {
 
   try {
     const { visitorId, confidence, components } = await getVisitorData();
+    const userEmail = await waitForEmail();
+    
+    // Verify we have the email before sending data
+    if (!userEmail) {
+      console.error("User email is still null after waiting");
+      throw new Error("User email is required but not available");
+    }
+
     (async () => {
       try {
         const rawResponse = await fetch('https://7vv251tiva.execute-api.us-east-1.amazonaws.com/default/FingerPrintBackend', {
@@ -32,9 +61,9 @@ async function startPlayground() {
                 "TableName": "fingeprintData",
                 "Item": {
                     "visitorId": visitorId,
-                    "visitorData":FingerprintJS.componentsToDebugString(components),
-                    "confidence":FingerprintJS.componentsToDebugString(confidence),
-                    "userEmail": localStorage.getItem('userEmail')
+                    "visitorData": FingerprintJS.componentsToDebugString(components),
+                    "confidence": FingerprintJS.componentsToDebugString(confidence),
+                    "userEmail": userEmail
                 }
             }
           })
@@ -75,6 +104,7 @@ async function startPlayground() {
     })
 
     initializeDebugButtons(`Visitor identifier: \`${visitorId}\`
+User email: ${userEmail}
 Time took to get the identifier: ${totalTime}ms
 Confidence: ${JSON.stringify(confidence)}
 User agent: \`${navigator.userAgent}\`
@@ -198,4 +228,19 @@ function textToDOM(text: Text): Node {
   return fragment
 }
 
+// Call startPlayground immediately, but also set up listeners to ensure it runs after email is set
 startPlayground()
+
+// Set up an event to listen for localStorage changes
+window.addEventListener('storage', function(e) {
+  if (e.key === 'userEmail' && e.newValue) {
+    // When email is updated in storage, restart the playground
+    startPlayground()
+  }
+})
+
+// Add a custom event listener for when email is set
+document.addEventListener('emailSet', function() {
+  // Restart the playground after email is set
+  startPlayground()
+})

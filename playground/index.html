@@ -1,10 +1,11 @@
+<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title><%= htmlWebpackPlugin.options.title %></title>
-  <link rel="icon" type="image/x-icon" href="<%= require('../resources/favicon.ico').default %>" />
+  <title>Visitor Identifier</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <style>
     /* The full-height solution for IE 11 is taken from https://gist.github.com/palicko/26b327cd2198e52c25b13485b4dd02bc */
     html {
@@ -201,9 +202,9 @@
 </head>
 <body>
   <!-- Main content initially hidden -->
-  <div class="content content-hidden">
+  <div class="content content-hidden" id="mainContent">
     <header>
-      <a href="<%= require('../package.json').homepage %>">
+      <a href="/">
       </a>
     </header>
     <div class="buttons">
@@ -212,7 +213,7 @@
     </div>
     <div class="outputHolder">
       <section class="output">
-        <div class="heading">Getting the visitor identifier...</div>
+        <div class="heading" id="welcomeHeading">Getting the visitor identifier...</div>
       </section>
     </div>
   </div>
@@ -235,13 +236,32 @@
       const submitButton = document.getElementById('submitEmail');
       const emailInput = document.getElementById('userEmail');
       const errorMessage = document.getElementById('errorMessage');
-      const mainContent = document.querySelector('.content');
+      const mainContent = document.getElementById('mainContent');
+      const welcomeHeading = document.getElementById('welcomeHeading');
+      const debugCopyBtn = document.getElementById('debugCopy');
+      const debugShareBtn = document.getElementById('debugShare');
       
       // Function to validate email format
       function isValidEmail(email) {
         // Regular expression for basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
+      }
+      
+      // Function to initialize the app after email is provided
+      function initializeApp(email) {
+        // Enable the buttons
+        debugCopyBtn.disabled = false;
+        debugShareBtn.disabled = false;
+        
+        // Update the heading with the email
+        welcomeHeading.textContent = `Welcome! Getting the visitor identifier for ${email}...`;
+        
+        // Additional initialization code can go here
+        console.log("App initialized with email:", email);
+        
+        // Example: You might want to start fetching visitor data here
+        // fetchVisitorData(email);
       }
       
       // Function to validate and process the email
@@ -258,10 +278,9 @@
           // Hide the overlay
           overlay.style.display = 'none';
           
-          // Update the heading to show the email
-          document.querySelector('.output .heading').textContent = 
-            `Welcome! Getting the visitor identifier for ${email}...`;
-            
+          // Initialize the app with the email
+          initializeApp(email);
+          
           return true;
         } else {
           // Show appropriate error message
@@ -309,8 +328,8 @@
         // If email exists, pre-fill the input
         emailInput.value = savedEmail;
         
-        // Let the user confirm their email - uncomment to auto-proceed with saved email
-        // processEmail();
+        // Automatically proceed with saved email
+        processEmail();
       }
     });
   </script>
